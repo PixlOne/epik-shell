@@ -216,6 +216,8 @@ function MainPage() {
 }
 
 function QSWindow(_gdkmonitor: Gdk.Monitor) {
+  const wifi = AstalNetwork.get_default().wifi;
+
   return (
     <PopupWindow
       name={WINDOW_NAME}
@@ -236,7 +238,7 @@ function QSWindow(_gdkmonitor: Gdk.Monitor) {
           <MainPage />
           <BatteryPage />
           <SpeakerPage />
-          <WifiPage />
+          {!!wifi && <WifiPage />}
         </stack>
       </box>
     </PopupWindow>

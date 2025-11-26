@@ -100,7 +100,7 @@ function defineVar(opt: Opt, type = "string", slice = 2, arrayLength = 4) {
   let modifiedVal: Record<string, number> | string | unknown;
   switch (type) {
     case "number":
-      if (opt.id === "font.family") {
+      if (opt.id === "theme.font.weight") {
         modifiedVal = `${value}`;
       } else {
         modifiedVal = `${value}px`;
@@ -191,7 +191,7 @@ async function initScss(mode: ThemeMode) {
   await writeFileAsync(targetDir, scssVar.join("\n")).catch(console.error);
   await bash(`sass ${scss} ${css}`);
   App.apply_css(css, true);
-  await bash(`rm -r ${tmp_dir}`)
+  await bash(`rm -rf ${tmp_dir}`)
 }
 
 export default async function () {
