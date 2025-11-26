@@ -8,16 +8,23 @@
       url = "github:aylur/astal";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    ags = {
+      url = "github:aylur/ags";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.astal.follows = "astal";
+    };
   };
 
   outputs =
-    { self
+    inputs @ { self
     , nixpkgs
     , systems
     , astal
-    ,
+    , ags
+    , ...
     }:
     let
+      name = "epik-shell";
       inherit (nixpkgs) lib;
       forEachSystem = f:
         lib.genAttrs (import systems) (
@@ -30,38 +37,86 @@
     {
       packages = forEachSystem (system:
         { pkgs }:
+        let
+          astal = inputs.astal.packages.${system};
+        in
         {
           default = pkgs.stdenvNoCC.mkDerivation {
-            name = "epik-shell";
+            name = name;
             src = ./.;
+            meta.mainProgram = name;
 
-            nativeBuildInputs = [
-              pkgs.wrapGAppsHook3
-              pkgs.gobject-introspection
-              pkgs.esbuild
+            nativeBuildInputs = with pkgs; [
+              wrapGAppsHook3
+              gobject-introspection
+              ags.packages.${system}.default
             ];
 
             buildInputs = [
-              pkgs.gjs
               pkgs.glib
+              pkgs.gjs
               pkgs.gtk4
-              astal.packages.${system}.io
-              astal.packages.${system}.astal4
+              pkgs.astal.gjs
+              astal.io
+              astal.astal4
+              astal.apps
+              astal.battery
+              astal.bluetooth
+              astal.hyprland
+              astal.mpris
+              astal.notifd
+              astal.network
+              astal.powerprofiles
+              astal.tray
+              astal.wireplumber
+              # packages like astal.battery or pkgs.libsoup_4
             ];
 
-            installPhase = ''
-              mkdir -p $out/bin
+            installPhase =
+              let
+                astal-gjs = "${pkgs.astal.gjs}/share/astal/gjs";
+              in
+              ''
+                mkdir -p $out/bin
+                mkdir -p $out/share/${name}
+                cp -r $src/styles $out/share/${name}/styles
+                ags bundle --gtk 4 --alias "astal=${astal-gjs}" -d "SRC='$out/share/${name}'" app.ts $out/bin/${name}
+              '';
 
-              esbuild \
-                --bundle src/app.js \
-                --outfile=$out/bin/my-shell \
-                --format=esm \
-                --sourcemap=inline \
-                --external:gi://\*
+            preFixup = ''
+              gappsWrapperArgs+=(
+                --prefix PATH : ${pkgs.lib.makeBinPath (with pkgs; [
+                  dart-sass
+                  hyprpicker
+                  swappy
+                  wf-recorder
+                  wayshot
+                  slurp
+                  wl-clipboard
+                  brightnessctl
+                ])}
+              )
             '';
           };
         }
       );
+
+      homeModules = {
+        default = self.homeModules.epik-shell;
+        epik-shell =
+          { pkgs, ... }: {
+            imports = [
+              ./nix
+              {
+                options.epik-shell.package = lib.mkOption
+                  {
+                    type = lib.types.package;
+                    default = self.packages.${pkgs.stdenv.hostPlatform.system}.default;
+                  };
+              }
+            ];
+          };
+      };
 
       devShells = forEachSystem (system:
         { pkgs }:
@@ -77,7 +132,8 @@
               statix
               vulnix
               haskellPackages.dhall-nix
-            ];
+            ] ++ self.packages.${system}.default.buildInputs
+            ++ self.packages.${system}.default.nativeBuildInputs;
           };
         }
       );

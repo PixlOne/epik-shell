@@ -16,6 +16,8 @@ type ShorthandProperty = {
   left?: number;
 };
 
+/* TODO: We really shouldn't dump random files in home on nix,
+     figure out how to get this working despite that.
 async function initGtk(mode: ThemeMode, reset = false) {
   const targetDir = `${GLib.get_home_dir()}/.themes/colors.css`;
   const colors = theme[mode];
@@ -45,6 +47,7 @@ async function initGtk(mode: ThemeMode, reset = false) {
     })
     .catch(console.error);
 }
+*/
 
 function shorthand(
   value: number | number[],
@@ -125,9 +128,10 @@ function defineVar(opt: Opt, type = "string", slice = 2, arrayLength = 4) {
 }
 
 async function initScss(mode: ThemeMode) {
-  const targetDir = `${SRC}/styles/variables.scss`;
-  const scss = `${SRC}/styles/styles.scss`;
-  const css = `${GLib.get_tmp_dir()}/styles.css`;
+  const tmp_dir = GLib.Dir.make_tmp("epik-shell-XXXXXX");
+  const targetDir = `${tmp_dir}/styles/variables.scss`;
+  const scss = `${tmp_dir}/styles/styles.scss`;
+  const css = `${tmp_dir}/styles.css`;
   const colors = theme[mode];
 
   const scssVar = [
@@ -175,19 +179,22 @@ async function initScss(mode: ThemeMode) {
     defineVar(bar.button.shadow.opacity, "number_only", 4),
   ];
 
+  await bash(`mkdir -p ${tmp_dir}`)
+  await bash(`cp -r --no-preserve=mode,ownership ${SRC}/styles ${tmp_dir}/styles`)
   await writeFileAsync(targetDir, scssVar.join("\n")).catch(console.error);
   await bash(`sass ${scss} ${css}`);
   App.apply_css(css, true);
+  await bash(`rm -r ${tmp_dir}`)
 }
 
 export default async function () {
   options.handler(["theme", "bar.position", "bar.separator"], async () => {
     const mode = options.theme.mode.get() as ThemeMode;
-    await initGtk(mode, true).catch(console.error);
+    // await initGtk(mode, true).catch(console.error);
     await initScss(mode).catch(console.error);
   });
 
   const mode = options.theme.mode.get() as ThemeMode;
-  await initGtk(mode).catch(console.error);
+  // await initGtk(mode).catch(console.error);
   await initScss(mode).catch(console.error);
 }
