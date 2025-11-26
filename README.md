@@ -96,6 +96,11 @@ You can check some configurations in the [wiki](https://github.com/ezerinz/epik-
     "position": "top_left", // "top_left" | "top" | "top_right" | "left" | "center" | "right" | "bottom_left" | "bottom" | "bottom_right"
   },
   "theme": {
+    "font": {
+      "family": "Google Sans",
+      "size": "0.95rem",
+      "weight": 600,
+    }
     "bar": {
       "bg_color": "$bg", // css color values (name -> red, rgb -> rgb(50, 50, 50), etc), or use theme color with "$" prefix ($bg, $accent, etc)
       "opacity": 1,

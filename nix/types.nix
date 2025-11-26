@@ -26,4 +26,6 @@ with lib;
   ];
 
   xy = with types; addCheck (listOf int) (l: length l == 2);
+
+  theme-mode = types.nullOr (types.enum [ "light" "dark" ]);
 }

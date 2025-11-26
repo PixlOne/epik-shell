@@ -6,7 +6,7 @@ import { App } from "astal/gtk4";
 import { Opt } from "./option";
 
 const { theme } = options;
-const { window, bar } = theme;
+const { window, bar, font } = theme;
 
 type ThemeMode = "dark" | "light";
 type ShorthandProperty = {
@@ -100,7 +100,11 @@ function defineVar(opt: Opt, type = "string", slice = 2, arrayLength = 4) {
   let modifiedVal: Record<string, number> | string | unknown;
   switch (type) {
     case "number":
-      modifiedVal = `${value}px`;
+      if (opt.id === "font.family") {
+        modifiedVal = `${value}`;
+      } else {
+        modifiedVal = `${value}px`;
+      }
       break;
     case "number_or_array":
       let short = shorthand(value as number | number[], arrayLength);
@@ -135,6 +139,9 @@ async function initScss(mode: ThemeMode) {
   const colors = theme[mode];
 
   const scssVar = [
+    defineVar(font.family, "string"),
+    defineVar(font.size, "string"),
+    defineVar(font.weight, "number"),
     defineVar(colors.bg, "string", 1),
     defineVar(colors.fg, "string", 1),
     defineVar(colors.accent, "string", 1),

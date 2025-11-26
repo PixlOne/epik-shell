@@ -45,6 +45,11 @@ const options = mkOptions(
           : "dark",
         { cached: true },
       ),
+      font: {
+        family: opt("Google Sans"),
+        size: opt("0.95rem"),
+        weight: opt(600),
+      },
       bar: {
         bg_color: opt("$bg"),
         opacity: opt(1),

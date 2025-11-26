@@ -54,6 +54,24 @@ in
           themeOf = defaults: mapAttrs (_name: value: colorOption value) defaults;
         in
         {
+          font = {
+            family = mkOption {
+              type = types.nullOr types.str;
+              default = null;
+            };
+            size = mkOption {
+              type = types.nullOr types.str;
+              default = null;
+            };
+            weight = mkOption {
+              type = types.nullOr types.int;
+              default = null;
+            };
+          };
+          mode = mkOption {
+            type = epikTypes.theme-mode;
+            default = null;
+          };
           # TODO: support themeing the rest of this?
           light = themeOf {
             bg = "#fbf1c7";

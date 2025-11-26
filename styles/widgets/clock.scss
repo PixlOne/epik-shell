@@ -5,23 +5,22 @@
 .clock-container {
   margin: $window-margin;
   color: $fg;
+
   .unit {
     padding: $window-desktop-clock-padding;
-    > * {
+
+    >* {
       margin: 0 0.7rem;
     }
   }
 
-  > box {
+  >box {
     background-color: color.adjust($bg, $alpha: calc($window-opacity - 1));
     border-radius: $window-border-radius;
     box-shadow:
       0 0 0 $window-border-width $window-border-color,
-      $window-shadow-offset $window-shadow-blur $window-shadow-spread
-        color.adjust(
-          $window-shadow-color,
-          $alpha: calc($window-shadow-opacity - 1)
-        );
+      $window-shadow-offset $window-shadow-blur $window-shadow-spread color.adjust($window-shadow-color,
+        $alpha: calc($window-shadow-opacity - 1));
 
     .box-label {
       font-size: 0.9rem;
@@ -32,7 +31,7 @@
   label {
     font-size: 3rem;
     color: $fg;
-    font-family: "Google Sans Display";
+    font-family: $font-family;
     font-weight: 700;
   }
 }

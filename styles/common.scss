@@ -3,9 +3,9 @@
 @use "variables" as *;
 
 * {
-  font-family: "Google Sans";
-  font-size: 0.95rem;
-  font-weight: 600;
+  font-family: $font-family;
+  font-size: $font-size;
+  font-weight: $font-weight;
 }
 
 scale {
